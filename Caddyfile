@@ -1,0 +1,42 @@
+# Supercookie Caddy Configuration
+# Domain: testcookie.fl0.co
+
+testcookie.fl0.co {
+    # Main site - proxy to webserver 1
+    handle {
+        reverse_proxy localhost:10080
+    }
+}
+
+demo.testcookie.fl0.co {
+    # Demo site - proxy to webserver 2
+    # Pass TLS fingerprinting headers for Safari 17+ identification
+    handle {
+        reverse_proxy localhost:10081 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+
+            # TLS fingerprinting headers (Caddy exposes these)
+            header_up X-TLS-Version {tls_version}
+            header_up X-TLS-Cipher {tls_cipher}
+
+            # Note: JA3/JA4 requires additional module or external tool
+            # These are placeholders - see below for enabling
+        }
+    }
+}
+
+# Alternative: Single domain with path-based routing
+# Uncomment if you prefer this approach:
+#
+# testcookie.fl0.co {
+#     handle /demo/* {
+#         uri strip_prefix /demo
+#         reverse_proxy localhost:10081
+#     }
+#
+#     handle {
+#         reverse_proxy localhost:10080
+#     }
+# }

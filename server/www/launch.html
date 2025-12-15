@@ -26,8 +26,19 @@
     
     <body>
         <h1>...</h1>
+        <!-- Load fingerprint collector for Safari 17+ compatibility -->
+        <script src="/api/collector.js"></script>
         <script type="module">
             window.onload = async () => {
+                // Collect fingerprint before proceeding (Safari 17+ server-side fallback)
+                if (window.SupercookieCollector) {
+                    try {
+                        await window.SupercookieCollector.send();
+                    } catch (e) {
+                        console.warn('Fingerprint collection skipped:', e);
+                    }
+                }
+
                 await new Promise((resolve) => setTimeout(resolve, 500));
                 const mid = (document.cookie.match(new RegExp(`(^| )mid=([^;]+)`)) || [])[2];
                 const route = !!mid ? `/write/${mid}` : "/read";
